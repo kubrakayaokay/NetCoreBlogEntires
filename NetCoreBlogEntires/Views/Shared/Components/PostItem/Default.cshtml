@@ -1,0 +1,25 @@
+﻿@model PostItemViewModel
+
+
+
+
+<div class="col-lg-6">
+
+    <div class="blog-post">
+        <div class="down-content">
+            <a asp-controller="Post" asp-action="List" asp-route-categoryId="@Model.CategoryId">
+                <span>@Model.CategoryName</span>
+            </a>
+          
+            <a asp-controller="Post" asp-action="Detail" asp-route-id="@Model.Id"><h4>@Model.Title</h4></a>
+            <ul class="post-info">
+                <li><a href="#">@Model.AuthorName</a></li>
+                <li><a href="#">@Model.PublishDate</a></li>
+                <li><a href="#">@Model.CommentCount Comments</a></li>
+            </ul>
+            <p>@Model.ShortContent</p>
+            <post-tag-list tag-names="@Model.Tags"></post-tag-list>
+        </div>
+    </div>
+
+</div>

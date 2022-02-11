@@ -1,0 +1,160 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+// https://mvc-grid.azurewebsites.net/
+// https://datatables.net/
+// https://www.jqueryscript.net/form/jQuery-Multiple-Select-Plugin-For-Bootstrap-Bootstrap-Multiselect.html#:~:text=Bootstrap%20Multiselect%20is%20a%20jQuery,3%20Version%20is%20available%20here.
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+}
+
+@model List<PostViewModel>
+@* TH ve TD sayısının eşit olmasına dikkat edelim mData hatası görürseniz bilinki budur. *@
+
+<table class="table" id="mytable">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Başlık</th>
+            <th scope="col">Özet</th>
+            <th scope="col">Kategorisi</th>
+            <th scope="col">Yazar</th>
+            <th scope="col">Yorum Sayısı</th>
+            <th scope="col">Yayın Tarihi</th>
+            <th scope="col">Onay</th>
+            <th scope="col">Detay</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td scope="row">@item.Title</td>
+
+                <td>@item.ShortContent</td>
+                <td>@item.CategoryName</td>
+                <td>@item.AuthorName</td>
+                <td>@item.CommentCount</td>
+                <td>@item.PublishDate</td>
+
+
+                <td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <label class="switch">
+                            @if (item.IsActive)
+                            {
+                                <input type="checkbox" checked onchange="toggle(event, '@item.Id')">
+                                <span class="slider round"></span>
+                            }
+                            else
+                            {
+                                <input type="checkbox" onchange="toggle(event,'@item.Id')">
+                                <span class="slider round"></span>
+                            }
+
+                        </label>
+                    }
+                </td>
+
+                <td>
+                    <a asp-area="Admin" asp-controller="Post" asp-action="Detail" asp-route-id="@item.Id">Detay</a>
+                </td>
+
+            </tr>
+        }
+
+
+
+
+    </tbody>
+</table>
+
+
+@section Scripts {
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            const options = {
+                paging: false,
+                scrollY: 300,
+                ordering: false,
+                searching: false,
+                responsive: true,
+
+            };
+            $('#mytable').DataTable({
+                /*    p: ['5', '10', '20'],*/
+                "lengthMenu": [[5, 10, 20, 50], [5, 10, 20, 50]],
+                "language": {
+
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "İleri"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+
+                    }
+                }
+            });
+            /*  $('#mytable').DataTable(options);*/
+        });
+        const toggle = (event, postId) => {
+            const checked = event.target.checked;
+
+            console.log('berkay7', checked);
+
+            const param = {
+                id: postId,
+                isActive: checked
+            };
+
+
+            // ajax ile post
+
+            $.ajax({
+                method: 'POST',
+                url: '/Admin/Post/ChangeStatus/',
+                contentType: 'application/json',
+                data: JSON.stringify(param),
+                success: function (response) {
+
+                    if (response.isActive) {
+                        alert('Makale görünür oldu')
+                    } else {
+                        alert('Makale kaldırıldı')
+                    }
+
+                },
+                error: function (err) {
+
+                }
+
+            })
+        }
+    </script>
+
+}
